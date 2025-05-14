@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Product</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --background-light: #f4f6f7;
+            --text-color: #2c3e50;
+            --border-color: #e0e6ed;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+            color: var(--text-color);
+        }
+
+        .container {
+            background-color: var(--white);
+            max-width: 500px;
+            width: 100%;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+
+        input, select {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+
+        .file-input-wrapper .btn-file-input {
+            border: 1px solid var(--border-color);
+            display: inline-block;
+            padding: 0.75rem;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        #imagePreview {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Edit Product</h2>
+        <form id="editForm" enctype="multipart/form-data">
+            <input type="hidden" id="_id">
+            
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="color">Color</label>
+                <input type="text" id="color">
+            </div>
+            
+            <div class="form-group">
+                <label for="size">Size</label>
+                <select id="size">
+                    <option value="Small">Small</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Large">Large</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="company">Company</label>
+                <input type="text" id="company" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category">
+                    <option value="Writing Supplies">Writing Supplies</option>
+                    <option value="Notebooks">Notebooks</option>
+                    <option value="Paper Products">Paper Products</option>
+                    <option value="Records">Records</option>
+                    <option value="Art & Craft Supplies">Art & Craft Supplies</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="price">Price</label>
+                <input type="number" id="price" required min="1" max="500">
+            </div>
+            
+            <div class="form-group">
+                <label for="instock">Stock</label>
+                <input type="number" id="instock" required min="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="image">Product Image</label>
+                <div class="file-input-wrapper">
+                    <button type="button" class="btn-file-input">Choose File</button>
+                    <input type="file" id="image" accept="image/*">
+                </div>
+                <img id="imagePreview" src="" alt="Product Image Preview">
+                <input type="hidden" id="existingImageUrl">
+            </div>
+            
+            <button type="submit">Update Product</button>
+        </form>
+    </div>
+    
+    <script>
+        async function fetchProductData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('_id');
+        
+            if (!productId) return;
+        
+            try {
+                const response = await fetch(`http://localhost:3000/college_store/${productId}`);
+                const product = await response.json();
+
+                // Fill form fields with existing product data
+                document.getElementById('_id').value = product._id;
+                document.getElementById('name').value = product.name;
+                document.getElementById('color').value = product.color || '';
+                document.getElementById('size').value = product.size;
+                document.getElementById('company').value = product.company;
+                document.getElementById('category').value = product.category;
+                document.getElementById('price').value = product.price;
+                document.getElementById('instock').value = product.instock;
+                
+                // Display existing image
+                if (product.imageUrl) {
+                    const imagePreview = document.getElementById('imagePreview');
+                    imagePreview.src = product.imageUrl;
+                    imagePreview.style.display = 'block';
+                    document.getElementById('existingImageUrl').value = product.imageUrl;
+                }
+            } catch (error) {
+                console.error('Error fetching product data:', error);
+            }
+        }
+
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // Form validation
+    const name = document.getElementById('name').value.trim();
+    const price = parseFloat(document.getElementById('price').value);
+    const instock = parseInt(document.getElementById('instock').value);
+    const company = document.getElementById('company').value.trim();
+    
+    // Validate name (not empty and at least 3 characters)
+    if (name.length < 3) {
+        alert('Product name must be at least 3 characters long');
+        return;
+    }
+    
+    // Validate company name (not empty)
+    if (company.length < 1) {
+        alert('Company name is required');
+        return;
+    }
+    
+    // Validate price (between 1 and 500)
+    if (isNaN(price) || price < 1 || price > 500) {
+        alert('Price must be between 1 and 500 rupees');
+        return;
+    }
+    
+    // Validate stock (non-negative)
+    if (isNaN(instock) || instock < 0) {
+        alert('Stock quantity cannot be negative');
+        return;
+    }
+    
+    const productId = document.getElementById('_id').value;
+    const formData = new FormData();
+
+    formData.append('_id', productId);
+    formData.append('name', name);
+    formData.append('color', document.getElementById('color').value);
+    formData.append('size', document.getElementById('size').value);
+    formData.append('company', company);
+    formData.append('category', document.getElementById('category').value);
+    formData.append('price', price);
+    formData.append('instock', instock);
+
+    const imageFile = document.getElementById('image').files[0];
+    const existingImageUrl = document.getElementById('existingImageUrl').value;
+
+    if (imageFile) {
+        formData.append('image', imageFile);
+    } else if (existingImageUrl) {
+        formData.append('imageUrl', existingImageUrl);
+    }
+
+    try {
+        const response = await fetch(`http://localhost:3000/college_store/${productId}`, {
+            method: 'PUT',
+            body: formData,
+        });
+
+        if (response.ok) {
+            alert('Product updated successfully!');
+            window.location.href = 'admin-add.html';
+        } else {
+            const errorText = await response.text();
+            alert(`Failed to update product: ${errorText}`);
+        }
+    } catch (error) {
+        console.error('Error updating product:', error);
+        alert('An error occurred while updating the product');
+    }
+});
+
+        document.getElementById('image').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const imagePreview = document.getElementById('imagePreview');
+                    imagePreview.src = event.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        window.onload = fetchProductData;
+    </script>
+</body>
+</html>

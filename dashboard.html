@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --background-light: #f4f6f7;
+            --text-color: #2c3e50;
+            --border-color: #e0e6ed;
+            --white: #ffffff;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            background-color: var(--background-light);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Sidebar - Desktop */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: var(--primary-color);
+            color: white;
+            padding-top: 2rem;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+            transition: var(--transition);
+            z-index: 1000;
+        }
+
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .sidebar ul li {
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar ul li:hover {
+            background-color: var(--secondary-color);
+            border-left-color: white;
+        }
+
+        .sidebar .logout {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: auto;
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 0.5rem;
+            z-index: 1001;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Content Area */
+        .content {
+            margin-left: 260px;
+            padding: 2rem;
+            width: calc(100% - 260px);
+            transition: var(--transition);
+        }
+
+        /* Dashboard Cards */
+        .cards {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            flex-grow: 1;
+            transition: var(--transition);
+            cursor: pointer;
+            min-width: 200px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Tables */
+        .table-container {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        table th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        table td {
+            padding: 1rem;
+            border-bottom: R1px solid var(--border-color);
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Chart */
+        .chart-container {
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        #salesChart {
+            max-height: 300px;
+            width: 100%;
+        }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 220px;
+            }
+            
+            .content {
+                margin-left: 220px;
+                width: calc(100% - 220px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                transform: translateY(-100%);
+                opacity: 0;
+                padding: 1rem 0;
+                position: fixed;
+                visibility: hidden;
+            }
+            
+            .sidebar.active {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            .sidebar h2 {
+                margin-bottom: 1rem;
+            }
+            
+            .sidebar ul {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .sidebar ul li {
+                text-align: center;
+                border-left: none;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .content {
+                margin-left: 0;
+                width: 100%;
+                padding: 1rem;
+                margin-top: 3rem;
+            }
+            
+            .cards {
+                flex-direction: column;
+            }
+            
+            .card {
+                min-width: 100%;
+                margin-bottom: 1rem;
+            }
+            
+            .table-container {
+                padding: 1rem;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+            
+            table th, table td {
+                padding: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content {
+                padding: 0.75rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .table-container {
+                padding: 0.75rem;
+            }
+            
+            table {
+                font-size: 0.8rem;
+            }
+            
+            table th, table td {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Mobile Navigation */
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            z-index: 999;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-header {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .mobile-header h2 {
+                font-size: 1.2rem;
+                font-weight: 600;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+        <h2>Admin Panel</h2>
+    </div>
+
+    <!-- Mobile Menu Toggle Button -->
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <div class="sidebar" id="sidebar">
+        <h2>Admin Panel</h2>
+        <ul>
+            <li onclick="window.location.href='dashboard.html'">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </li>
+            <li onclick="window.location.href='admin-add.html'">
+                <i class="fas fa-box"></i> Products
+            </li>
+            <li class="logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Main Content Area -->
+    <div class="content">
+        <div id="dashboard" class="section">
+            <h1>Dashboard Overview</h1>
+            <div class="cards">
+                <div class="card">
+                    <h3>Total Sales</h3>
+                    <p id="totalSales">₹0</p>
+                </div>
+                <div class="card">
+                    <h3>Total Orders</h3>
+                    <p id="totalOrders">0</p>
+                </div>
+                <div class="card" onclick="window.location.href='lowstock.html'">
+                    <h3>Low Stock Items</h3>
+                    <p id="lowStock">0</p>
+                </div>
+            </div>
+            <div class="table-container">
+                <h3>Recent Sales</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesData">
+                        <tr>
+                            <td colspan="4">No sales data available</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile Menu Toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+            
+            // Change icon based on sidebar state
+            const icon = this.querySelector('i');
+            if (sidebar.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+        
+        // Close menu when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.getElementById('menuToggle');
+            
+            if (window.innerWidth <= 768 && 
+                sidebar.classList.contains('active') && 
+                !sidebar.contains(event.target) && 
+                event.target !== menuToggle &&
+                !menuToggle.contains(event.target)) {
+                sidebar.classList.remove('active');
+                
+                const icon = menuToggle.querySelector('i');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = "login.html";
+            window.history.replaceState(null, null, "login.html");
+        }
+
+        window.onload = function() {
+            if (!localStorage.getItem('token')) {
+                window.location.href = "login.html";
+            } else {
+                loadDashboardData();
+            }
+        };
+
+        // Function to load all dashboard data
+        async function loadDashboardData() {
+            try {
+                await Promise.all([
+                    loadSummaryData(),
+                    loadRecentSales(),
+                    loadSalesChart()
+                ]);
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Function to load summary data (total sales, orders, low stock)
+        async function loadSummaryData() {
+            try {
+                // Fetch orders for total sales and orders count
+                const ordersResponse = await fetch('http://localhost:3000/orders', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                });
+                const orders = await ordersResponse.json();
+                
+                // Calculate total sales
+                let totalSalesAmount = 0;
+                orders.forEach(order => {
+                    if (order.status === 'paid') {
+                        totalSalesAmount += order.amount;
+                    }
+                });
+                
+                // Get total paid orders
+                const paidOrders = orders.filter(order => order.status === 'paid').length;
+                
+                // Fetch products to check for low stock
+                const productsResponse = await fetch('http://localhost:3000/college_store', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                });
+                const products = await productsResponse.json();
+                
+                // Consider items with stock less than 10 as low stock
+                const lowStockCount = products.filter(product => product.instock < 10).length;
+                
+                // Update the UI
+                document.getElementById('totalSales').textContent = '₹' + totalSalesAmount.toLocaleString();
+                document.getElementById('totalOrders').textContent = paidOrders;
+                document.getElementById('lowStock').textContent = lowStockCount;
+            } catch (error) {
+                console.error('Error loading summary data:', error);
+            }
+        }
+
+        // Function to load recent sales data
+        async function loadRecentSales() {
+            try {
+                const response = await fetch('http://localhost:3000/orders', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                });
+                const orders = await response.json();
+                
+                // Filter only paid orders
+                const paidOrders = orders.filter(order => order.status === 'paid');
+                
+                const salesDataContainer = document.getElementById('salesData');
+                
+                if (paidOrders.length === 0) {
+                    salesDataContainer.innerHTML = `
+                        <tr>
+                            <td colspan="4">No sales data available</td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                // Clear the container
+                salesDataContainer.innerHTML = '';
+                
+                // Get the 5 most recent orders
+                const recentOrders = paidOrders.slice(0, 5);
+                
+                // Create row for each order
+                recentOrders.forEach(order => {
+                    // For each item in the order
+                    if (order.items && order.items.length > 0) {
+                        order.items.forEach(item => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${order.orderId.substring(0, 8)}...</td>
+                                <td>${item.name}</td>
+                                <td>${item.quantity}</td>
+                                <td>₹${(item.price * item.quantity).toLocaleString()}</td>
+                            `;
+                            salesDataContainer.appendChild(row);
+                        });
+                    } else {
+                        // For orders without detailed items
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${order.orderId.substring(0, 8)}...</td>
+                            <td>Unknown</td>
+                            <td>-</td>
+                            <td>₹${order.amount.toLocaleString()}</td>
+                        `;
+                        salesDataContainer.appendChild(row);
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading recent sales:', error);
+            }
+        }
+
+        // Function to load sales chart data
+        async function loadSalesChart() {
+            try {
+                const response = await fetch('http://localhost:3000/orders', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                });
+                const orders = await response.json();
+                
+                // Filter paid orders only
+                const paidOrders = orders.filter(order => order.status === 'paid');
+                
+                // Group by date
+                const salesByDate = {};
+                
+                paidOrders.forEach(order => {
+                    const date = new Date(order.date).toLocaleDateString();
+                    if (!salesByDate[date]) {
+                        salesByDate[date] = 0;
+                    }
+                    salesByDate[date] += order.amount;
+                });
+                
+                // Convert to arrays for Chart.js
+                const dates = Object.keys(salesByDate).sort((a, b) => new Date(a) - new Date(b));
+                const amounts = dates.map(date => salesByDate[date]);
+                
+                // Create chart
+                new Chart(document.getElementById('salesChart'), {
+                    type: 'line',
+                    data: {
+                        labels: dates,
+                        datasets: [{
+                            label: 'Total Sales',
+                            data: amounts,
+                            borderColor: '#2c3e50',
+                            backgroundColor: 'rgba(44, 62, 80, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Sales Trend'
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading sales chart data:', error);
+            }
+        }
+    </script>
+</body>
+</html>

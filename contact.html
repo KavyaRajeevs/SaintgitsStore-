@@ -1,0 +1,137 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form</title>
+    <link rel="stylesheet" href="contactstyles.css">
+    <link rel="stylesheet" href="responsive.css">
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Add EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <a href="home.html">SaintgitsStore</a>
+            </div>
+            <div class="nav-links">
+                <a href="home.html">Home</a>
+                <a href="contact.html" class="active">Contact</a>
+                <a href="about.html">About</a>
+            </div>
+            <div id="fill"></div>
+            <div id="fill"></div>
+            <div id="profile-button" class="fas fa-sign-out" onclick="logout()"></div>
+        </div>
+    </header>
+    <div class="contact-container">
+        <!-- Left Side: Contact Info -->
+        <div class="contact-info">
+            <div class="info-box">
+                <i class="fas fa-phone-alt"></i>
+                <h3>Call To Us</h3>
+                <p>We are available 24/7, 7 days a week.</p>
+                <p>Phone: +91 481 2436169</p>
+            </div>
+            <hr>
+            <div class="info-box">
+                <i class="fas fa-envelope"></i>
+                <h3>Write To Us</h3>
+                <p>Fill out our form and we will contact you within 24 hours.</p>
+                <p>Email: mail@saintgits.org</p>
+            </div>
+        </div>
+
+        <!-- Right Side: Suggestions Section -->
+        <div class="contact-form suggestions-section">
+            <h1 class="suggestions-heading">Share Your Suggestions With Us!</h1>
+            <p class="suggestions-subtext">We value your feedback on our store. Let us know about any issues, bugs, or ideas for improvement.</p>
+            
+            <form id="contact-form">
+                <textarea id="message" name="message" placeholder="Enter your suggestions, feedback, or report issues here..."></textarea>
+                <button type="submit">Send Feedback</button>
+            </form>
+            <div id="status-message"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize EmailJS with your public key
+        (function() {
+            emailjs.init("P-73t4mJElxQvzFM5"); // Replace with your actual EmailJS public key
+        })();
+
+        // Handle form submission
+        document.getElementById('contact-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Show loading state
+            const statusMessage = document.getElementById('status-message');
+            statusMessage.innerHTML = '<p style="color: blue;">Sending your suggestions, please wait...</p>';
+            
+            // Get form data
+            const message = document.getElementById('message').value;
+            
+            // Prepare template parameters
+            const templateParams = {
+                message: message,
+                from_name: "Website User", // Default value since we don't collect name
+                from_email: "noreply@saintgitsstore.com", // Default value
+                phone_number: "Not Provided" // Default value
+            };
+            
+            // Send email using EmailJS
+            emailjs.send('service_t4x9i44', 'template_6jab698', templateParams)
+                .then(function(response) {
+                    console.log('SUCCESS!', response.status, response.text);
+                    statusMessage.innerHTML = '<p style="color: green;">Thanks! Your suggestions have been sent successfully!</p>';
+                    document.getElementById('contact-form').reset(); // Reset form
+                }, function(error) {
+                    console.log('FAILED...', error);
+                    statusMessage.innerHTML = '<p style="color: red;">Oops! Something went wrong. Please try again later.</p>';
+                });
+        });
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = "login.html";
+            window.history.replaceState(null, null, "login.html");
+        }
+         document.addEventListener('DOMContentLoaded', function() {
+    // Create hamburger menu button
+    const hamburger = document.createElement('div');
+    hamburger.className = 'hamburger-menu';
+    hamburger.innerHTML = '<span></span><span></span><span></span>';
+    
+    // Get needed elements
+    const header = document.querySelector('.header-container');
+    const navLinks = document.querySelector('.nav-links');
+    const logo = document.querySelector('.logo');
+    
+    // Insert hamburger button after logo
+    header.insertBefore(hamburger, logo);
+    
+    // Toggle menu on hamburger click
+    hamburger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        this.classList.toggle('active');
+        navLinks.classList.toggle('active');
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!hamburger.contains(event.target) && !navLinks.contains(event.target)) {
+            hamburger.classList.remove('active');
+            navLinks.classList.remove('active');
+        }
+    });
+   
+});
+    </script>
+</body>
+</html>

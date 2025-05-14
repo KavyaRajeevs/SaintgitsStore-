@@ -1,0 +1,302 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header Styles */
+.header {
+    background-color: #f9f9f9;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 10;
+}
+
+.logo-container {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-right: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.college-logo {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.brand {
+    color: rgb(14, 11, 11);
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Main Content Styles */
+.main-content {
+    flex: 1;
+    display: flex;
+    position: relative;
+}
+
+/* Desktop Layout (side by side) */
+@media screen and (min-width: 769px) {
+    .main-content {
+        flex-direction: row;
+    }
+    
+    .building-image {
+        flex: 1;
+        height: calc(100vh - 118px); /* Subtracting header and footer height */
+    }
+    
+    .login-container {
+        width: 400px;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Building Image */
+.building-image {
+    
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.building-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+    
+.portrait{
+    display: none;
+}
+
+/* Login Container */
+.login-container {
+    background-color: white;
+    padding: 3rem 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.5s ease;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 320px;
+}
+
+.login-header {
+    font-size: 1.8rem;
+    color: #0f3057;
+    margin-bottom: 2rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+#googleSignIn {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    transition: transform 0.2s ease;
+}
+
+#googleSignIn:hover {
+    transform: translateY(-2px);
+}
+
+/* Footer Styles */
+.footer {
+    background-color: #f9f9f9;
+    padding: 1rem;
+    text-align: center;
+    color: rgb(0, 16, 31);
+    font-size: 0.8rem;
+    z-index: 10;
+}
+
+/* Animation Effects */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Mobile Layout (stacked) */
+@media screen and (max-width: 768px) {
+    /* .main-content {
+        flex-direction: column;
+    }
+    
+    .building-image {
+        height: 40vh;
+    }
+    
+    .login-container {
+        width: 100%;
+        padding: 2.5rem 2rem;
+        box-shadow: 0 -10px 20px rgba(0, 0, 0, 0.1);
+        position: relative;
+        margin-top: -2rem;
+        border-radius: 2rem 2rem 0 0;
+        z-index: 5;
+    } */
+    body {
+            min-height: 100vh;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background-image: url('portrait.png');
+            background-size: cover;
+        }
+
+        /* Background styles */
+        .background-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            
+            overflow: hidden;
+        }
+        
+        
+    .building-image{
+        display: none;
+    }
+    .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+
+
+        .header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .logo-container {
+            width: 2.5rem;
+            height: 2.5rem;
+            margin-right: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .college-logo {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .brand {
+            color: #010101;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .login-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            max-width: 350px;
+            padding: 2rem;
+            border-radius: 1rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .login-box {
+            width: 100%;
+        }
+
+        .login-header {
+            font-size: 1.6rem;
+            color: #0f3057;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        #googleSignIn {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            transition: transform 0.2s ease;
+        }
+
+        #googleSignIn:hover {
+            transform: translateY(-2px);
+        }
+
+        
+}
+
+/* Additional responsive breakpoints */
+@media screen and (max-width: 576px) {
+    .header {
+        padding: 0.8rem 1.5rem;
+    }
+    
+    .brand {
+        font-size: 1.3rem;
+    }
+    
+    .logo-container {
+        width: 2rem;
+        height: 2rem;
+    }
+    
+    .building-image {
+        height: 35vh;
+    }
+    
+    .login-container {
+        padding: 2rem 1.5rem;
+    }
+    
+    .login-header {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+}
+

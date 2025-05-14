@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart - College Store</title>
+    <link rel="stylesheet" href="cartstyle.css">
+    <link rel="stylesheet" href="responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <a href="home.html">SaintgitsStore</a>
+            </div>
+            <div class="nav-links">
+                <a href="home.html" class="active">Home</a>
+                <a href="contact.html">Contact</a>
+                <a href="about.html">About</a>
+            </div>
+            <div class="search-cart">
+                <button class="icon-button">
+                    <a href="wishlist.html"><i class="far fa-heart"></i></a>
+                </button>
+                <button class="icon-button">
+                    <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
+                </button>
+                <div 
+ id="profile-button" 
+class="fas fa-sign-out"
+onclick="logout()"
+></div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <h2 class="cart-title">Your Cart</h2>
+        
+        <!-- Select all checkbox -->
+        <div class="select-all-container">
+            <label>
+                <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll()">
+                Select All
+            </label>
+        </div>
+        
+        <div class="cart-container" id="cart-container">
+            <!-- Cart items will appear here -->
+        </div>
+
+        <div class="cart-summary">
+            <h3>Cart Total</h3>
+            <p>Subtotal: ₹<span id="subtotal-price">0</span></p>
+            <p>Shipping: Free</p>
+            <p>Total: ₹<span id="total-price">0</span></p>
+            <button id="checkout-btn" class="checkout-btn">Proceed to Checkout</button>
+        </div>
+    </div>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  
+    
+    <script>
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = "login.html";
+            window.history.replaceState(null, null, "login.html");
+        }
+    document.addEventListener('DOMContentLoaded', function() {
+    // Create hamburger menu button
+    const hamburger = document.createElement('div');
+    hamburger.className = 'hamburger-menu';
+    hamburger.innerHTML = '<span></span><span></span><span></span>';
+    
+    // Get needed elements
+    const header = document.querySelector('.header-container');
+    const navLinks = document.querySelector('.nav-links');
+    const logo = document.querySelector('.logo');
+    
+    // Insert hamburger button after logo
+    header.insertBefore(hamburger, logo);
+    
+    // Toggle menu on hamburger click
+    hamburger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        this.classList.toggle('active');
+        navLinks.classList.toggle('active');
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!hamburger.contains(event.target) && !navLinks.contains(event.target)) {
+            hamburger.classList.remove('active');
+            navLinks.classList.remove('active');
+        }
+    });
+});
+        // Store wishlist items for easy lookup
+        let wishlistItems = [];
+        let cartItems = []; // Store cart items globally
+        let stockLimits = {}; // Store stock limits for each product
+
+        // Fetch wishlist data
+        async function fetchWishlist() {
+            try {
+                const res = await fetch('http://localhost:3000/wishlist');
+                wishlistItems = await res.json();
+                return wishlistItems;
+            } catch (error) {
+                console.error('Error fetching wishlist:', error);
+                return [];
+            }
+        }
+
+        // Check if an item is in wishlist
+        function isInWishlist(productId) {
+            return wishlistItems.some(item => item.productId === productId);
+        }
+        
+        function navigateToProduct(productId) {
+            window.location.href = `product.html?id=${productId}`;
+        }
+        
+        // Fetch stock information for a product
+        async function fetchStockInfo(productId) {
+    try {
+        const res = await fetch(`http://localhost:3000/college_store/${productId}`);
+        const product = await res.json();
+        return product.instock;
+    } catch (error) {
+        console.error('Error fetching stock info:', error);
+        return 10; // Default to 10 if there's an error
+    }
+}
+
+        // Toggle select all checkboxes
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('select-all-checkbox');
+            const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+            
+            itemCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+            
+            // Update totals based on selection
+            calculateTotal();
+        }
+
+        // Calculate total based on selected items
+        function calculateTotal() {
+            let totalPrice = 0;
+            const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+            
+            itemCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const itemId = checkbox.getAttribute('data-item-id');
+                    const item = cartItems.find(item => item._id === itemId);
+                    if (item) {
+                        totalPrice += item.price * item.quantity;
+                    }
+                }
+            });
+            
+            document.getElementById('subtotal-price').textContent = totalPrice.toFixed(2);
+            document.getElementById('total-price').textContent = totalPrice.toFixed(2);
+        }
+
+        // Validate quantity input
+        function validateQuantity(input, stockLimit) {
+            const value = input.value;
+            
+            // Check if value is a number
+            if (isNaN(value) || value === '') {
+                alert('Please enter a valid number');
+                input.value = 1;
+                return 1;
+            }
+            
+            // Check if value is an integer
+            if (!Number.isInteger(parseFloat(value))) {
+                alert('Quantity must be a whole number');
+                input.value = Math.floor(parseFloat(value));
+                return Math.floor(parseFloat(value));
+            }
+            
+            // Check if value is negative
+            if (parseInt(value) <= 0) {
+                alert('Quantity must be at least 1');
+                input.value = 1;
+                return 1;
+            }
+            
+            // Check if value exceeds stock limit
+            if (parseInt(value) > stockLimit) {
+                alert(`Only ${stockLimit} items available in stock`);
+                input.value = stockLimit;
+                return stockLimit;
+            }
+            
+            return parseInt(value);
+        }
+
+        async function fetchCart() {
+            try {
+                // First fetch wishlist to know which items are already wishlisted
+                await fetchWishlist();
+                
+                const res = await fetch('http://localhost:3000/cart');
+                cartItems = await res.json(); // Store cart items in global variable
+
+                const container = document.getElementById('cart-container');
+                container.innerHTML = '';
+
+                // Fetch stock information for all products
+                for (const item of cartItems) {
+                    stockLimits[item.productId] = await fetchStockInfo(item.productId);
+                }
+
+                cartItems.forEach(item => {
+                    const stockLimit = stockLimits[item.productId];
+                    
+                    // Determine if item is in wishlist
+                    const inWishlist = isInWishlist(item.productId);
+                    const heartIcon = inWishlist ? 'fas fa-heart' : 'far fa-heart';
+                    const heartClass = inWishlist ? 'wishlist-btn wishlist-added' : 'wishlist-btn';
+                    
+                    container.innerHTML += `
+                        <div class="cart-item">
+                            <div class="cart-selection">
+                                <input type="checkbox" class="item-checkbox" data-item-id="${item._id}" onchange="calculateTotal()" checked>
+                            </div>
+                            <img src="${item.imageUrl || '/uploads/placeholder.jpg'}" alt="${item.name}" width="100" onclick="navigateToProduct('${item.productId}')" style="cursor: pointer;">
+                            <div class="cart-info">
+                                <h4 onclick="navigateToProduct('${item.productId}')" style="cursor: pointer;">${item.name}</h4>
+                                <p>Price: ₹${item.price}</p>
+                                <div class="quantity-controls">
+                                    <p>Quantity: 
+                                        <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="${stockLimit}" 
+                                            onchange="updateQuantity('${item._id}', validateQuantity(this, ${stockLimit}))" 
+                                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                    </p>
+                                    <small>In stock: ${stockLimit}</small>
+                                </div>
+                            </div>
+                            <div class="cart-actions">
+                                <button class="${heartClass}" onclick="toggleWishlist('${item.productId}', '${item.name}', ${item.price}, '${item.imageUrl}', this)">
+                                    <i class="${heartIcon}"></i>
+                                </button>
+                                <button class="delete-btn" onclick="removeFromCart('${item._id}')">Remove</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                // Set select all checkbox to checked by default
+                document.getElementById('select-all-checkbox').checked = true;
+                
+                // Calculate initial total (all items selected by default)
+                calculateTotal();
+            } catch (error) {
+                console.error('Error fetching cart:', error);
+            }
+        }
+
+        async function toggleWishlist(productId, name, price, imageUrl, buttonEl) {
+            try {
+                const inWishlist = isInWishlist(productId);
+                
+                if (inWishlist) {
+                    // Find wishlist item id
+                    const wishlistItem = wishlistItems.find(item => item.productId === productId);
+                    if (wishlistItem) {
+                        await fetch(`http://localhost:3000/wishlist/${wishlistItem._id}`, { 
+                            method: 'DELETE' 
+                        });
+                        
+                        // Update button appearance
+                        buttonEl.innerHTML = '<i class="far fa-heart"></i>';
+                        buttonEl.classList.remove('wishlist-added');
+                        
+                        // Update local wishlist data
+                        wishlistItems = wishlistItems.filter(item => item.productId !== productId);
+                    }
+                } else {
+                    // Add to wishlist
+                    await fetch('http://localhost:3000/wishlist', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ productId, name, price, imageUrl })
+                    });
+                    
+                    // Update button appearance
+                    buttonEl.innerHTML = '<i class="fas fa-heart"></i>';
+                    buttonEl.classList.add('wishlist-added');
+                    
+                    // Update local wishlist data
+                    wishlistItems.push({ productId, name, price, imageUrl });
+                }
+            } catch (error) {
+                console.error('Error updating wishlist:', error);
+            }
+        }
+
+        async function removeFromCart(id) {
+            try {
+                await fetch(`http://localhost:3000/cart/${id}`, { method: 'DELETE' });
+                alert('Item removed from cart');
+                fetchCart();
+            } catch (error) {
+                console.error('Error removing item:', error);
+            }
+        }
+
+        async function updateQuantity(id, quantity) {
+            try {
+                await fetch(`http://localhost:3000/cart/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ quantity: Number(quantity) })
+                });
+                
+                // Update the quantity in the local cartItems array
+                const itemIndex = cartItems.findIndex(item => item._id === id);
+                if (itemIndex !== -1) {
+                    cartItems[itemIndex].quantity = quantity;
+                }
+                
+                // Recalculate total based on selected items
+                calculateTotal();
+            } catch (error) {
+                console.error('Error updating quantity:', error);
+            }
+        }
+
+        // Function to get selected items
+        function getSelectedItems() {
+            const selectedItems = [];
+            const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+            
+            itemCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const itemId = checkbox.getAttribute('data-item-id');
+                    const item = cartItems.find(item => item._id === itemId);
+                    if (item) {
+                        selectedItems.push(item);
+                    }
+                }
+            });
+            
+            return selectedItems;
+        }
+
+        // Function to clear selected items after successful payment
+        async function clearSelectedItems() {
+            try {
+                const selectedItems = getSelectedItems();
+                
+                // Delete each selected item in the cart one by one
+                const deletePromises = selectedItems.map(item => 
+                    fetch(`http://localhost:3000/cart/${item._id}`, { method: 'DELETE' })
+                );
+                
+                await Promise.all(deletePromises);
+                
+                // Refresh the cart display
+                fetchCart();
+            } catch (error) {
+                console.error('Error clearing selected items:', error);
+            }
+        }
+
+        document.getElementById('checkout-btn').onclick = function() {
+            // Get selected items
+            const selectedItems = getSelectedItems();
+            
+            if (selectedItems.length === 0) {
+                alert("Please select at least one item to checkout!");
+                return;
+            }
+            
+            // Calculate the current total of selected items
+            let totalAmount = 0;
+            selectedItems.forEach(item => {
+                totalAmount += item.price * item.quantity;
+            });
+            
+            if (totalAmount <= 0) {
+                alert("Your cart is empty!");
+                return;
+            }
+            
+            // Get auth token from localStorage
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert("You need to log in to checkout");
+                window.location.href = "login.html"; // Redirect to login
+                return;
+            }
+            
+            fetch('http://localhost:3000/create-order', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({
+        amount: totalAmount,
+        selectedItems: selectedItems  // Send only selected items
+    })
+})
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                var options = {
+    "key": "rzp_test_eOqIOMVuRb8BNl",
+    "amount": data.amount,
+    "currency": "INR",
+    "order_id": data.order_id,
+    "name": "SaintgitsStore",
+    "description": "Payment for Your Order",
+    "image": "logo.png",
+    "modal": {
+        "ondismiss": function() {
+            // Cancel the order in the backend when payment is dismissed
+            fetch('http://localhost:3000/cancel-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    order_id: data.order_id
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    alert("Payment cancelled successfully.");
+                } else {
+                    alert("Payment was cancelled.");
+                }
+            })
+            .catch(err => {
+                console.error('Error cancelling order:', err);
+                alert("Payment was cancelled.");
+            });
+        }
+    },
+    
+
+                    "handler": function(response) {
+                        if (
+                            !response.razorpay_payment_id ||
+                            !response.razorpay_order_id ||
+                            !response.razorpay_signature
+                        ) {
+                            alert("Payment was cancelled or incomplete.");
+                            return;
+                        }
+                        // Verify the payment
+                        fetch('http://localhost:3000/verify-payment', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_signature: response.razorpay_signature
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert("Payment successful! Your order has been placed.");
+                                // Clear the selected items after successful payment
+                                clearSelectedItems();
+                            } else {
+                                alert("Payment verification failed. Please try again.");
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Error verifying payment:', err);
+                            alert("Error processing payment. Please try again.");
+                        });
+                    },
+                    "prefill": {
+                        "name": localStorage.getItem('name') || "Customer Name",
+                        "email": localStorage.getItem('email') || "customer@example.com",
+                        "contact": "9876543210"
+                    },
+                    "theme": {
+                        "color": "#0066cc"
+                    }
+                };
+                var rzp1 = new Razorpay(options);
+                rzp1.open();
+            })
+            .catch(err => {
+                console.error('Error fetching order:', err);
+                alert("Error creating order. Please try again.");
+            });
+        };
+
+        // Initialize cart when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchCart();
+        });
+    </script>
+</body>
+</html>

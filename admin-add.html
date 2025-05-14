@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Store Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --background-light: #f4f6f7;
+            --text-color: #2c3e50;
+            --border-color: #e0e6ed;
+            --error-color: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 1rem auto;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            width: 95%;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .back-button {
+            background-color: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .back-button:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+        h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .form-section, .table-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .search-container {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        #searchInput {
+            flex-grow: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        form input, form select {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        form input:focus, form select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        form button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        form button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Responsive Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 650px;
+        }
+
+        table th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-buttons button {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .edit-btn {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .action-buttons button:hover {
+            opacity: 0.9;
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-top: -0.5rem;
+            margin-bottom: 0.5rem;
+            display: none;
+        }
+
+        input.error {
+            border-color: var(--error-color);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0.75rem;
+                margin: 0.5rem auto;
+                width: 98%;
+            }
+
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            h2 {
+                margin: 0.5rem 0;
+                font-size: 1.3rem;
+            }
+
+            .form-section, .table-section {
+                padding: 1rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.3rem;
+            }
+
+            .action-buttons button {
+                width: 100%;
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-button" onclick="window.location.href=`dashboard.html`">← Back</button>
+            <h2>Stock Management</h2>
+        </div>
+
+        <div class="form-section">
+            <h3>Add New Product</h3>
+            <form id="productForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <input type="text" id="name" placeholder="Product Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="color" placeholder="Color (optional)">
+                </div>
+                <div class="form-group">
+                    <select id="size">
+                        <option value="Small">Small</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Large">Large</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="company" placeholder="Company" required>
+                </div>
+                <div class="form-group">
+                    <select id="category">
+                        <option value="Writing Supplies">Writing Supplies</option>
+                        <option value="Notebooks">Notebooks</option>
+                        <option value="Paper Products">Paper Products</option>
+                        <option value="Records">Records</option>
+                        <option value="Art & Craft Supplies">Art & Craft Supplies</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="price" placeholder="Price" required step="0.01" min="0">
+                    <div id="priceError" class="error-message">Price must be a positive number</div>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="instock" placeholder="Stock Quantity" required step="1" min="0">
+                    <div id="instockError" class="error-message">Stock quantity must be a positive integer</div>
+                </div>
+                <div class="form-group">
+                    <input type="file" id="image" required>
+                </div>
+                <button type="submit">Add Product</button>
+            </form>
+        </div>
+
+        <div class="table-section">
+            <h3>All Products</h3>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search products...">
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Color</th>
+                            <th>Size</th>
+                            <th>Company</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTable">
+                        <!-- Products will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('productForm');
+        const tableBody = document.getElementById('productTable');
+        const searchInput = document.getElementById('searchInput');
+        const priceInput = document.getElementById('price');
+        const instockInput = document.getElementById('instock');
+        const priceError = document.getElementById('priceError');
+        const instockError = document.getElementById('instockError');
+        let allProducts = [];
+
+        // Fetch products from backend
+        async function fetchProducts() {
+            try {
+                const res = await fetch('http://localhost:3000/college_store');
+                allProducts = await res.json();
+                renderProducts(allProducts);
+            } catch (error) {
+                console.error("Error fetching products:", error);
+                alert("Failed to load products. Please check your connection.");
+            }
+        }
+
+        // Render products with optional filtering
+        function renderProducts(products) {
+            tableBody.innerHTML = '';
+            products.forEach(product => {
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${product.name}</td>
+                        <td>${product.color || '-'}</td>
+                        <td>${product.size}</td>
+                        <td>${product.company}</td>
+                        <td>${product.category}</td>
+                        <td> ₹${product.price.toFixed(2)}</td>
+                        <td>${product.instock}</td>
+                        <td class="action-buttons">
+                            <button class="edit-btn" onclick="editProduct('${product._id}')">Edit</button>
+                            <button class="delete-btn" onclick="deleteProduct('${product._id}')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Validation functions
+        function validatePrice() {
+            const value = parseFloat(priceInput.value);
+            if (isNaN(value) || value < 0) {
+                priceInput.classList.add('error');
+                priceError.style.display = 'block';
+                return false;
+            } else {
+                priceInput.classList.remove('error');
+                priceError.style.display = 'none';
+                return true;
+            }
+        }
+
+        function validateStock() {
+            const value = parseFloat(instockInput.value);
+            if (isNaN(value) || value < 0 || !Number.isInteger(value)) {
+                instockInput.classList.add('error');
+                instockError.style.display = 'block';
+                return false;
+            } else {
+                instockInput.classList.remove('error');
+                instockError.style.display = 'none';
+                return true;
+            }
+        }
+
+        // Add event listeners for validation
+        priceInput.addEventListener('input', validatePrice);
+        instockInput.addEventListener('input', validateStock);
+
+        // Search functionality
+        searchInput.addEventListener('input', () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredProducts = allProducts.filter(product => 
+                product.name.toLowerCase().includes(searchTerm) ||
+                product.company.toLowerCase().includes(searchTerm) ||
+                product.category.toLowerCase().includes(searchTerm)
+            );
+            renderProducts(filteredProducts);
+        });
+
+        // Redirect to edit.html with product ID
+        function editProduct(id) {
+            window.location.href = `edit.html?_id=${id}`;
+        }
+
+        // Delete product
+        async function deleteProduct(id) {
+            if (confirm("Are you sure you want to delete this product?")) {
+                try {
+                    await fetch(`http://localhost:3000/college_store/${id}`, {
+                        method: 'DELETE'
+                    });
+                    fetchProducts();
+                } catch (error) {
+                    console.error("Error deleting product:", error);
+                    alert("Failed to delete product.");
+                }
+            }
+        }
+
+        // Add new product with FormData (to support file uploads)
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validate before submission
+            const isPriceValid = validatePrice();
+            const isStockValid = validateStock();
+            
+            if (!isPriceValid || !isStockValid) {
+                return; // Stop form submission if validation fails
+            }
+
+            try {
+                const formData = new FormData();
+                formData.append('name', form.name.value);
+                formData.append('color', form.color.value);
+                formData.append('size', form.size.value);
+                formData.append('company', form.company.value);
+                formData.append('category', form.category.value);
+                formData.append('price', form.price.value);
+                formData.append('instock', Math.floor(Number(form.instock.value))); // Ensure integer
+                formData.append('image', form.image.files[0]);
+
+                const response = await fetch('http://localhost:3000/college_store', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                form.reset();
+                fetchProducts();
+                alert("Product added successfully!");
+            } catch (error) {
+                console.error("Error adding product:", error);
+                alert("Failed to add product. Please try again.");
+            }
+        });
+
+        fetchProducts();
+    </script>
+</body>
+</html>

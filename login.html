@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaintgitsStore - Login</title>
+    <link rel="stylesheet" href="loginstyles.css">
+    <script src="login.js"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="logo-container">
+            <img src="logo.png" alt="College Logo" class="college-logo">
+        </div>
+        <div class="brand">SaintgitsStore</div>
+    </header>
+
+    <main class="main-content">
+        <div class="building-image">
+            <img src="saintgits_land.jpg" alt="Saintgits Building">
+        </div>
+
+        <div class="login-container">
+            <div class="login-box">
+                <h2 class="login-header">Log in</h2>
+                <div id="googleSignIn"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer" style="color: rgb(0, 16, 31);">&copy;copyrights 2025</footer>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <script>
+        function handleCredentialResponse(response) {
+            const idToken = response.credential;
+            
+            // Get the base URL dynamically
+            const baseURL = getBaseAPIUrl();
+            
+            fetch(`${baseURL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: idToken })
+            })
+            .then(res => res.json())
+            .then(data => {
+                localStorage.setItem('token', data.token);
+                if (data.email) {
+                    localStorage.setItem('user_email', data.email);
+                }
+                window.location.href = data.redirect;
+            })
+            .catch(err => {
+                console.log('Login Failed', err);
+                alert('Login failed. Please try again.');
+            });
+        }
+
+        // Function to determine the base API URL based on current hostname
+        function getBaseAPIUrl() {
+            const hostname = window.location.hostname;
+            
+            // If we're on localhost, use the development server port
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:3000';
+            }
+            
+            // For ngrok or any other domain, use the same origin
+            if (hostname.includes('ngrok')) {
+                // For ngrok specifically, we need to use https
+                return `https://${hostname}`;
+            }
+            
+            // Default to same origin
+            return window.location.origin;
+        }
+
+        window.onload = function() {
+            google.accounts.id.initialize({
+                client_id: '760072900583-d0o804i2a7ob0uquplh9imeu8r8rgr24.apps.googleusercontent.com',
+                callback: handleCredentialResponse
+            });
+
+            google.accounts.id.renderButton(document.getElementById("googleSignIn"), { theme: "outline", size: "large" });
+            google.accounts.id.prompt();
+        };
+    </script>
+    <script>
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+        };
+    </script>
+    
+</body>
+</html>

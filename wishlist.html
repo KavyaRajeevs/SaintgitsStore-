@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Wishlist</title>
+    <link rel="stylesheet" href="wishstyle.css">
+    <link rel="stylesheet" href="responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="shortcut icon" href="logo.png" type="image/x-icon">
+    
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <a href="home.html">SaintgitsStore</a>
+            </div>
+            <div class="nav-links">
+                <a href="home.html" class="active">Home</a>
+                <a href="contact.html">Contact</a>
+                <a href="about.html">About</a>
+            </div>
+            <div class="search-cart">
+                <button class="icon-button">
+                    <a href="wishlist.html"><i class="far fa-heart"></i></a>
+                </button>
+                <button class="icon-button">
+                    <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
+                </button>
+                <div 
+ id="profile-button" 
+class="fas fa-sign-out"
+onclick="logout()"
+></div>
+            </div>
+        </div>
+    </header>
+
+
+    <section class="wishlist-section">
+        <div class="wishlist-header">
+            <h2>Wishlist (<span id="wishlist-count">0</span>)</h2>
+            <button class="move-all-btn" onclick="moveAllToCart()">Move All To Bag</button>
+        </div>
+        <div class="wishlist-container" id="wishlist-container">
+            <!-- Wishlist items will be dynamically injected here -->
+        </div>
+    </section>
+
+<script>
+    function logout() {
+            localStorage.removeItem('token');
+            window.location.href = "login.html";
+            window.history.replaceState(null, null, "login.html");
+ }
+async function fetchWishlist() {
+    const res = await fetch('http://localhost:3000/wishlist');
+    const wishlist = await res.json();
+
+    const container = document.getElementById('wishlist-container');
+    container.innerHTML = '';
+    document.getElementById("wishlist-count").textContent = wishlist.length;
+
+    wishlist.forEach(item => {
+                container.innerHTML += `
+                    <div class="product-card">
+                        <img src="${item.imageUrl}" alt="${item.name}">
+                        <button class="delete-btn" onclick="removeFromWishlist('${item._id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <div class="product-info">
+                            <h4>${item.name}</h4>
+                            <p class="price">₹${item.price}</p>
+                            <button class="add-to-cart-btn" onclick="addToCart('${item._id}', '${item.name}', '${item.price}', '${item.imageUrl}')">
+                                Add To Cart
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+    }
+
+async function addToCart(id, name, price, imageUrl) {
+    await fetch('http://localhost:3000/cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            productId: id,
+            name: name,
+            price: price,
+            imageUrl: imageUrl,
+            quantity: 1
+        })
+    });
+    alert('Product added to cart!', 'success');
+    removeFromWishlist(id);
+}
+
+async function removeFromWishlist(id) {
+    await fetch(`http://localhost:3000/wishlist/${id}`, {
+        method: 'DELETE'
+    });
+    alert('❌ Removed from Wishlist');
+    fetchWishlist();
+}
+async function moveAllToCart() {
+            const res = await fetch('http://localhost:3000/wishlist');
+            const wishlist = await res.json();
+
+            for (let item of wishlist) {
+                await addToCart(item._id, item.name, item.price, item.imageUrl);
+            }
+            alert('All items moved to cart');
+}
+
+fetchWishlist();
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Create hamburger menu button
+    const hamburger = document.createElement('div');
+    hamburger.className = 'hamburger-menu';
+    hamburger.innerHTML = '<span></span><span></span><span></span>';
+    
+    // Get needed elements
+    const header = document.querySelector('.header-container');
+    const navLinks = document.querySelector('.nav-links');
+    const logo = document.querySelector('.logo');
+    
+    // Insert hamburger button after logo
+    header.insertBefore(hamburger, logo);
+    
+    // Toggle menu on hamburger click
+    hamburger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        this.classList.toggle('active');
+        navLinks.classList.toggle('active');
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!hamburger.contains(event.target) && !navLinks.contains(event.target)) {
+            hamburger.classList.remove('active');
+            navLinks.classList.remove('active');
+        }
+    });
+});
+</script>
+
+</body>
+</html>

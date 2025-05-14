@@ -1,0 +1,161 @@
+
+
+#search-button {
+    scale: 0.8;
+    padding: 10px 20px;
+    background-color: #d44235;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+
+
+
+/* Product Card */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+.product-card {
+    position: relative;
+    width: 230px;
+    background: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+    text-align: center;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Product Image */
+.product-image {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 5px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    justify-content: space-between;
+}
+
+.product-image img {
+    border-radius: 8px;
+    width: 100px;
+    height: auto;
+    object-fit: cover;
+}
+
+/* Wishlist and View Icons */
+.icon-btn {
+    position: absolute;
+    top: 10px;
+    background: white;
+    border: none;
+    padding: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.wishlist-btn {
+    right: 40px;
+    color: red;
+}
+
+.view-btn {
+    right: 10px;
+    color: black;
+}
+
+.icon-btn:hover {
+    background: #ddd;
+}
+
+/* Add to Cart Button */
+.add-to-cart-btn {
+    display: block;  /* Ensure it's visible */
+    width: 100%;
+    background: black;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+    margin-top: 10px; /* Ensure spacing */
+}
+
+.add-to-cart-btn:hover {
+    background: #333;
+}
+
+/* Product Info */
+.product-card h4 {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.price {
+    font-size: 14px;
+    color: red;
+    font-weight: bold;
+}
+.product-info {
+    padding: 10px 0;
+    display: block !important;
+    width: 100%;
+    text-align: center;
+}
+
+.product-info h4 {
+    display: block !important;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 10px 0;
+    color: #333;
+    text-align: center;
+}
+
+.product-info .price {
+    display: block !important; 
+    font-size: 14px;
+    color: #d44235;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.add-to-cart-btn {
+    display: block !important;
+    width: 100%;
+    background: #000;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+    margin-top: 10px;
+}
+
+.product-image {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f9f9f9;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}

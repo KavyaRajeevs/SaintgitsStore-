@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Store</title>
+    <link rel="shortcut icon" href="logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="homestyle.css">
+    <link rel="stylesheet" href="homestyles.css">
+    <link rel="stylesheet" href="responsive-home.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <a href="home.html">SaintgitsStore</a>
+            </div>
+            <!-- Nav links now hidden by default on mobile and shown via hamburger menu -->
+            <div class="nav-links">
+                <a href="home.html" class="active">Home</a>
+                <a href="contact.html">Contact</a>
+                <a href="about.html">About</a>
+            </div>
+            <div class="search-cart">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Product Name" id="search-input">
+                    <span class="search-icon">
+                        <i class="fas fa-search"></i>
+                    </span>
+                </div>
+                <button id="search-button">Search</button>
+                <button class="icon-button">
+                    <a href="wishlist.html"><i class="far fa-heart"></i></a>
+                </button>
+                <button class="icon-button">
+                    <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
+                </button>
+                <div 
+                    id="profile-button" 
+                    class="fas fa-sign-out"
+                    onclick="logout()"
+                ></div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Categories Section -->
+        <section class="section">
+            <div class="category-heading">
+                <div class="category-indicator"></div>
+                <h3 class="category-title">CATEGORIES</h3>
+            </div>
+            <div class="section-header">
+                <h2 class="section-title">Browse By Category</h2>
+            </div>
+            <div class="categories-grid">
+                <div class="category-item" onclick="fetchProducts()">
+                    <div class="category-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="category-name">Home</div>
+                </div>
+                <div class="category-item" onclick="filterCategory('Writing Supplies')">
+                    <div class="category-icon">
+                        <i class="fas fa-pen"></i>
+                    </div>
+                    <div class="category-name">Writing Supplies</div>
+                </div>
+                <div class="category-item" onclick="filterCategory('Paper Products')">
+                    <div class="category-icon">
+                        <i class="fas fa-file"></i>
+                    </div>
+                    <div class="category-name">Paper Products</div>
+                </div>
+                <div class="category-item" onclick="filterCategory('Notebooks')">
+                    <div class="category-icon">
+                        <i class="fas fa-thumb-tack"></i>
+                    </div>
+                    <div class="category-name">Notebooks</div>
+                </div>
+                <div class="category-item" onclick="filterCategory('Art & Craft Supplies')">
+                    <div class="category-icon">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <div class="category-name">Art & Craft Supplies</div>
+                </div>
+                <div class="category-item" onclick="filterCategory('Records')">
+                    <div class="category-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="category-name">Records</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="category-heading">
+                <div class="category-indicator"></div>
+                <h3 class="category-title">OUR PRODUCTS</h3>
+            </div>
+        </section>
+        <section class="product-section">
+            <div class="products-grid" id="product-container">
+                <!-- Dynamic Products Will Load Here -->
+            </div>
+        </section>
+    </main>
+
+    <script src="home.js"></script>
+    
+
+    <script>
+    function logout() {
+        localStorage.removeItem('token');
+        window.location.href = "login.html";
+        window.history.replaceState(null, null, "login.html");
+    }
+    
+    async function addToWishlist(id, name, price, imageUrl) {
+        await fetch('http://localhost:3000/wishlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                productId: id,
+                name: name,
+                price: price,
+                imageUrl: imageUrl
+            })
+        });
+        alert('Product added to wishlist!', 'success');
+    }
+   
+    // Hamburger Menu Implementation
+document.addEventListener('DOMContentLoaded', function() {
+    // Create hamburger menu button
+    const hamburger = document.createElement('div');
+    hamburger.className = 'hamburger-menu';
+    hamburger.innerHTML = '<span></span><span></span><span></span>';
+    
+    // Get needed elements
+    const header = document.querySelector('.header-container');
+    const navLinks = document.querySelector('.nav-links');
+    const logo = document.querySelector('.logo');
+    
+    // Insert hamburger button after logo
+    header.insertBefore(hamburger, logo);
+    
+    // Toggle menu on hamburger click
+    hamburger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        this.classList.toggle('active');
+        navLinks.classList.toggle('active');
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!hamburger.contains(event.target) && !navLinks.contains(event.target)) {
+            hamburger.classList.remove('active');
+            navLinks.classList.remove('active');
+        }
+    });
+    
+    // Make category cards more compact
+    const categoryItems = document.querySelectorAll('.category-item');
+    if (window.innerWidth <= 992) {
+        categoryItems.forEach(item => {
+            const categoryName = item.querySelector('.category-name');
+            if (categoryName) {
+                categoryName.style.display = 'none';
+            }
+        });
+    }
+    
+    // Adjust category height on window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth <= 992) {
+            categoryItems.forEach(item => {
+                const categoryName = item.querySelector('.category-name');
+                if (categoryName) {
+                    categoryName.style.display = 'none';
+                }
+            });
+        } else {
+            categoryItems.forEach(item => {
+                const categoryName = item.querySelector('.category-name');
+                if (categoryName) {
+                    categoryName.style.display = 'block';
+                }
+            });
+        }
+    });
+});
+    </script>
+</body>
+</html>

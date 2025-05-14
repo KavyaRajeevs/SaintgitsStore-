@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <link rel="stylesheet" href="productstyle.css">
+    <link rel="stylesheet" href="responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <a href="home.html">SaintgitsStore</a>
+            </div>
+            <div class="nav-links">
+                <a href="home.html">Home</a>
+                <a href="contact.html">Contact</a>
+                <a href="about.html">About</a>
+            </div>
+            <div class="search-cart">
+                <button class="icon-button">
+                    <a href="wishlist.html"><i class="far fa-heart"></i></a>
+                </button>
+                <button class="icon-button">
+                    <a href="cart.html"><i class="fas fa-shopping-cart"></i></a>
+                </button>
+                <div 
+ id="profile-button" 
+class="fas fa-sign-out"
+onclick="logout()"
+></div>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <div class="product-container">
+            <div class="product-image">
+                <img id="product-img" src="" alt="Product Image">
+            </div>
+            <div class="product-info">
+                <h1 id="product-name"></h1>
+                <p id="stock-status"></p>
+                <h2 id="product-price"></h2>
+
+                <div class="product-details">
+                    <h3>Product Details</h3>
+                    <div class="details-table">
+                        <div class="detail-row">
+                            <div class="detail-label">Size:</div>
+                            <div id="product-size" class="detail-value"></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Colour:</div>
+                            <div id="product-color" class="detail-value"></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Company:</div>
+                            <div id="product-company" class="detail-value"></div>
+                        </div>
+                    </div>
+                    <hr>
+                </div>
+
+                <div id="purchase-controls">
+                    <!-- Will be populated dynamically based on stock -->
+                </div>
+            </div>
+        </div>
+        <div class="recommendations-container">
+            <h2>Recommended for You</h2>
+            <div id="recommended-products" class="products-grid"></div>
+        </div>
+    </div>
+      
+
+
+    <script src="product.js"></script>
+    <script>
+         document.addEventListener('DOMContentLoaded', function() {
+    // Create hamburger menu button
+    const hamburger = document.createElement('div');
+    hamburger.className = 'hamburger-menu';
+    hamburger.innerHTML = '<span></span><span></span><span></span>';
+    
+    // Get needed elements
+    const header = document.querySelector('.header-container');
+    const navLinks = document.querySelector('.nav-links');
+    const logo = document.querySelector('.logo');
+    
+    // Insert hamburger button after logo
+    header.insertBefore(hamburger, logo);
+    
+    // Toggle menu on hamburger click
+    hamburger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        this.classList.toggle('active');
+        navLinks.classList.toggle('active');
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!hamburger.contains(event.target) && !navLinks.contains(event.target)) {
+            hamburger.classList.remove('active');
+            navLinks.classList.remove('active');
+        }
+    });
+});
+    </script>
+</body>
+</html>
